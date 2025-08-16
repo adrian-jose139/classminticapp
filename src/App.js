@@ -2,13 +2,13 @@
 // import './App.css';
 
 import LoginPage from './pages/loginpage/LoginPage';
+import StateContador from './playground/userState/userState';
 
 function App() {
   return (
     <>
-    <LoginPage/>
-    <LoginPage/>
-    <LoginPage/>
+    <StateContador/>
+    
     </>
     
   );
