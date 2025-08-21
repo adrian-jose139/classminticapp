@@ -1,30 +1,24 @@
-import './LoginPages.css';
-import { useState } from 'react';
-import Swal from 'sweetalert2';
 
+import { Link } from "react-router-dom";
+import React from "react";
+import { useState } from "react";
+import ForgotPage from "./ForgotPage/ForgotPage";
+import RegisterPage from "./RegisterPage/RegisterPage";
+import HooksGral from "../../playground/HooksGral";
 
-function LoginPage() {
-
-    const [username, setUsername] = useState('');
-
-    function handleLoginClick() {
-        if (username.trim() === '') {
-            Swal.fire("Por favor, ingrese un nombre de usuario");
-        }
-        else {
-            Swal.fire(username)
-        }
-    }
-       
-    return (
-        <div className="login-container">
-            <h2>EJERCICIO DE PRUEBA</h2>
-            <input type="text"
-                placeholder='Escriba nombre de usuario'
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <button onClick={handleLoginClick}>Iniciar Sesion</button>
+function LoginPage(){
+    return(
+        <div>
+            <h1>HOME</h1>
+            <Link to=" /register">
+            <button>IR A REGISTRO</button>
+            </Link>
+            <Link to=" /forgot">
+            <button>OLVIDE MI CONTRASEÑA</button>
+            </Link>
+            <Link to="/Hooks">
+                <button>IR A HOOKS</button>
+            </Link>
         </div>
     );
 }
