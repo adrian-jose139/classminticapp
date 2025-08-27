@@ -1,34 +1,50 @@
-// import logo from './logo.svg';
-// import './App.css';
-
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import LoginPage from './pages/loginpage/LoginPage';
-import ForgotPage from './pages/loginpage/ForgotPage/ForgotPage';
-import RegisterPage from './pages/loginpage/RegisterPage/RegisterPage';
-// import StateContador from './playground/userState/userState';
 
-/*import pages de hooks */
-import HooksGral from './playground/HooksGral';
-import UseStateHook from './playground/useState';
+
+// Rutas públicas
+import 'bootstrap/dist/css/bootstrap.min.css';
+import NotFoundPage from './pages/components/NotFoundPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage/ForgotPasswordPage';
+import LoginPage from './pages/LoginPage/LoginPage';
+import RegisterPage from './pages/RegisterPage/RegisterPage';
+
+// Rutas para hooks
+
+import UseEffectPlay from './pages/Playground/UseEffectPlay';
+import UseRefPlay from './pages/Playground/UseRefPlay';
+import UseStatePlay from './pages/Playground/UseStatePlay';
+
+// Protege rutas con autenticación Firebase
+import ProtectedRoute from './pages/components/ProtectedRoute';
+import DashboardPage from './pages/DashboardPage/DashboardPage'; 
+import AuxiliaresPage from './pages/AuxiliaresPage/AuxiliaresPage';
+import ResetPasswordPage from './pages/ResetPasswordPage/ResetPasswordPage';
+
+       
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Rutas públicas */}
         <Route path="/" element={<LoginPage />} />
-        <Route path="/forgot" element={<ForgotPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* rutas para hooks */}
+        {/* Rutas protegidas con Firebase Auth */}
+        <Route path="/dashboard" element={<ProtectedRoute> <DashboardPage /> </ProtectedRoute> } />
+        <Route path="/auxiliares" element={<ProtectedRoute> <AuxiliaresPage /> </ProtectedRoute> } />
 
-        <Route path="/hooks" element={<HooksGral />} />
-        <Route path="/useState" element={<UseStateHook />} />
+        {/* Ruta genérica para páginas no encontradas */}
+        <Route path="*" element={<NotFoundPage />} />
 
-
+        {/* Rutas para prácticas de hooks */}
+        <Route path="/usestate" element={<UseStatePlay />} />
+        <Route path="/useeffect" element={<UseEffectPlay />} />
+        <Route path="/useref" element={<UseRefPlay />} />
       </Routes>
-
     </BrowserRouter>
-
   );
 }
 
