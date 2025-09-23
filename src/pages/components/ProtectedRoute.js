@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { useAuth } from "../../context/AuthContext";
 import { auth } from '../../firebase';
 import Spinner from './Spinner';
 import { useEffect, useState } from 'react';

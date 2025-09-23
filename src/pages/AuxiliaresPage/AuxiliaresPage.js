@@ -70,7 +70,8 @@ function AuxiliaresPage() {
                 email: selectedAux.email,
                 fechaNacimiento: selectedAux.fechaNacimiento,
                 sexo: selectedAux.sexo,
-                estado: selectedAux.estado
+                estado: selectedAux.estado,
+                rol: selectedAux.rol
             });
 
             setAuxiliares(auxiliares.map(a =>
@@ -86,12 +87,36 @@ function AuxiliaresPage() {
     };
 
     const handleModalChange = (e) => {
-        const { name, value } = e.target;
+    const { name, value } = e.target;
+
+    if (name === "fechaNacimiento") {
+        setSelectedAux({
+            ...selectedAux,
+            fechaNacimiento: value,
+            edad: calcularEdad(value) // 👉 recalculamos edad
+        });
+    } else {
         setSelectedAux({
             ...selectedAux,
             [name]: value
         });
-    };
+    }
+};
+
+
+const calcularEdad = (fecha) => {
+    if (!fecha) return "";
+    const hoy = new Date();
+    const nacimiento = new Date(fecha);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+    }
+    return edad;
+};
+
 
     // Foto de usuario (si está logueado)
     const user = auth.currentUser;
@@ -141,7 +166,7 @@ function AuxiliaresPage() {
             <main className="main-content">
                 <Container className="mt-4">
                     <h2 className="page-title text-center mb-4">
-                        AUXILIARES DE SERVICIOS REGISTRADOS EN BRILLA
+                        AUXILIARES DE SERVICIOS REGISTRADOS EN AGROAPP
                     </h2>
                     <div className="table-container">
                         <Table striped bordered hover responsive className="tabla-auxiliares">
@@ -153,8 +178,10 @@ function AuxiliaresPage() {
                                     <th>Teléfono</th>
                                     <th>Email</th>
                                     <th>Fecha Nacimiento</th>
+                                    <th>Edad</th>
                                     <th>Sexo</th>
                                     <th>Estado</th>
+                                    <th>Rol</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -167,8 +194,32 @@ function AuxiliaresPage() {
                                         <td>{aux.telefono}</td>
                                         <td>{aux.email}</td>
                                         <td>{aux.fechaNacimiento || '-'}</td>
+                                        <td>{calcularEdad(aux.fechaNacimiento)}</td>
                                         <td>{aux.sexo || '-'}</td>
-                                        <td>{aux.estado || 'Pendiente'}</td>
+                                        <td>
+                                              <span
+                                                    className={aux.estado === "Activo"
+                                                        ? "badge bg-success"
+                                                        : aux.estado === "Pendiente"
+                                                        ? "badge bg-warning text-dark"
+                                                        : "badge bg-secondary"
+                                                    }
+                                                >
+                                                    {aux.estado || 'Pendiente'}
+                                                </span>
+                                                </td>
+                                                <td>
+                                                <span
+                                                    className={
+                                                    aux.rol === "Admin"
+                                                        ? "badge bg-primary"
+                                                        : "badge bg-info text-dark"
+                                                    }
+                                                >
+                                                    {aux.rol || 'Auxiliar'}
+                                                </span>
+                                        </td>
+                                        
                                         <td>
                                             <Button
                                                 variant="warning"
@@ -263,6 +314,15 @@ function AuxiliaresPage() {
                                 />
                             </Form.Group>
                             <Form.Group className="mb-2">
+                                <Form.Label>Edad</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="edad"
+                                    value={selectedAux.edad || ''}
+                                    readOnly
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-2">
                                 <Form.Label>Sexo</Form.Label>
                                 <Form.Select
                                     name="sexo"
@@ -286,6 +346,20 @@ function AuxiliaresPage() {
                                     <option>Inactivo</option>
                                 </Form.Select>
                             </Form.Group>
+                            <Form.Group className="mb-2">
+                                <Form.Label>Rol</Form.Label>
+                                <Form.Select
+                                    name="rol"
+                                    value={selectedAux.rol || ""}
+                                    onChange={handleModalChange}
+                                >
+                                    <option value="">-- Seleccione un rol --</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Auxiliar">Auxiliar</option>
+                                </Form.Select>
+                            </Form.Group>
+
+
                         </Form>
                     )}
                 </Modal.Body>
