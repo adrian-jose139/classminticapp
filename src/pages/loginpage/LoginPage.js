@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { auth, googleProvider, db } from '../../firebase';
 import { signInWithEmailAndPassword, fetchSignInMethodsForEmail, linkWithCredential, EmailAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, where, collection, query, getDocs } from 'firebase/firestore';
 import './LoginPage.css';
 import logo from '../../assets/agronomia.avif';
 
@@ -42,7 +42,7 @@ function LoginPage() {
         timer: 2000,
         showConfirmButton: false
       }).then(() => {
-        window.location.href = "/protegida";
+        window.location.href = "/dashboard";
       });
 
     } catch (error) {
@@ -53,41 +53,35 @@ function LoginPage() {
 
   // LOGIN CON GOOGLE
   const handleGoogleLogin = async () => {
-    try {
-      const googleResult = await signInWithPopup(auth, googleProvider);
-      const user = googleResult.user;
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
 
-      // Verificar si ya existía ese correo con otro método
-      const signInMethods = await fetchSignInMethodsForEmail(auth, user.email);
+    // 🔎 Buscar en Firestore si el correo existe
+    const q = query(
+      collection(db, "usuarios"),
+      where("email", "==", user.email)
+    );
+    const querySnapshot = await getDocs(q);
 
-      if (signInMethods.includes('password')) {
-        // Si existe por password hay que vincularlo
-        const password = await solicitarPassword();
-        if (!password) {
-          Swal.fire("Cancelado", "Operación cancelada.", "info");
-          return;
-        }
-
-        // Crear credential de email/password
-        const credential = EmailAuthProvider.credential(user.email, password);
-        await linkWithCredential(user, credential);
-      }
-
-      Swal.fire({
-        title: "¡Bienvenido!",
-        text: `Sesión iniciada con Google: ${user.email}`,
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false
-      }).then(() => {
-        window.location.href = "/dashboard";
-      });
-
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "No se pudo iniciar sesión con Google.", "error");
+    if (querySnapshot.empty) {
+      // ❌ No existe → Bloquear acceso
+      Swal.fire(
+        "Acceso denegado",
+        "Tu correo no está registrado. Debes registrarte primero con correo y contraseña.",
+        "error"
+      );
+      await auth.signOut(); // 👈 lo saco de la sesión
+      return;
     }
-  };
+
+    // ✅ Sí existe → Dejar pasar al dashboard
+    window.location.href = "/dashboard";
+  } catch (error) {
+    console.error(error);
+    Swal.fire("Error", "No se pudo iniciar sesión con Google.", "error");
+  }
+};
 
   const solicitarPassword = async () => {
     const result = await Swal.fire({

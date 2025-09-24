@@ -26,55 +26,95 @@ function RegisterPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Validaciones
-    for (const key in formData) {
-      if (formData[key] === '') {
-        Swal.fire("Campos incompletos", "Por favor llena todos los campos.", "warning");
-        return;
-      }
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      Swal.fire("Correo inválido", "Escribe un correo válido.", "error");
+  // 1. Validar campos vacíos
+  for (const key in formData) {
+    if (formData[key] === '') {
+      Swal.fire("Campos incompletos", "Por favor llena todos los campos.", "warning");
       return;
     }
+  }
 
-    if (formData.password !== formData.confirmPassword) {
-      Swal.fire("Contraseña", "Las contraseñas no coinciden.", "error");
-      return;
+  // 2. Validar cédula (solo números, 6-12 dígitos aprox.)
+  const cedulaRegex = /^[0-9]{6,12}$/;
+  if (!cedulaRegex.test(formData.cedula)) {
+    Swal.fire("Cédula inválida", "La cédula debe contener solo números y tener entre 6 y 12 dígitos.", "error");
+    return;
+  }
+
+  // 3. Validar nombres y apellidos (solo letras, mínimo 2 caracteres)
+  const nameRegex = /^[a-zA-ZÁÉÍÓÚáéíóúñÑ\s]{2,50}$/;
+  if (!nameRegex.test(formData.nombres) || !nameRegex.test(formData.apellidos)) {
+    Swal.fire("Nombre inválido", "Nombres y apellidos solo deben contener letras y espacios.", "error");
+    return;
+  }
+
+  // 4. Validar fecha de nacimiento (que sea mayor de 15 años, por ejemplo)
+  const fechaNac = new Date(formData.fechaNacimiento);
+  const hoy = new Date();
+  const edad = hoy.getFullYear() - fechaNac.getFullYear();
+  if (edad < 15) {
+    Swal.fire("Edad no válida", "Debes tener al menos 15 años para registrarte.", "error");
+    return;
+  }
+
+  // 5. Validar teléfono (10 dígitos, empieza en 3 típico de Colombia)
+  const telRegex = /^3\d{9}$/;
+  if (!telRegex.test(formData.telefono)) {
+    Swal.fire("Teléfono inválido", "El teléfono debe tener 10 dígitos y comenzar en 3.", "error");
+    return;
+  }
+
+  // 6. Validar correo electrónico
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(formData.email)) {
+    Swal.fire("Correo inválido", "Escribe un correo válido.", "error");
+    return;
+  }
+
+  // 7. Validar contraseña segura
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{6,}$/;
+  if (!passwordRegex.test(formData.password)) {
+    Swal.fire("Contraseña insegura", "La contraseña debe tener al menos 6 caracteres, incluir mayúsculas, minúsculas y números.", "error");
+    return;
+  }
+
+  // 8. Validar que las contraseñas coincidan
+  if (formData.password !== formData.confirmPassword) {
+    Swal.fire("Contraseña", "Las contraseñas no coinciden.", "error");
+    return;
+  }
+
+  // --- Si todas las validaciones pasan ---
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+    const user = userCredential.user;
+
+    await setDoc(doc(db, 'usuarios', user.uid), {
+      cedula: formData.cedula,
+      nombres: formData.nombres,
+      apellidos: formData.apellidos,
+      fechaNacimiento: formData.fechaNacimiento,
+      sexo: formData.sexo,
+      telefono: formData.telefono,
+      email: formData.email,
+      estado: 'pendiente'
+    });
+
+    Swal.fire("¡Registro exitoso!", "Usuario registrado correctamente.", "success").then(() => {
+      window.location.href = "/";
+    });
+  } catch (error) {
+    if (error.code === 'auth/email-already-in-use') {
+      Swal.fire("Error", "Este correo ya está registrado.", "error");
+    } else {
+      console.error(error);
+      Swal.fire("Error", "No se pudo registrar el usuario.", "error");
     }
+  }
+};
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      const user = userCredential.user;
-
-      // Guardar datos adicionales en Firestore
-      await setDoc(doc(db, 'usuarios', user.uid), {
-        cedula: formData.cedula,
-        nombres: formData.nombres,
-        apellidos: formData.apellidos,
-        fechaNacimiento: formData.fechaNacimiento,
-        sexo: formData.sexo,
-        telefono: formData.telefono,
-        email: formData.email,
-        estado: 'pendiente'  // campo para activar o desactivar luego
-      });
-
-      Swal.fire("¡Registro exitoso!", "Usuario registrado correctamente.", "success").then(() => {
-        window.location.href = "/";
-      });
-    } catch (error) {
-      if (error.code === 'auth/email-already-in-use') {
-        Swal.fire("Error", "Este correo ya está registrado.", "error");
-      } else {
-        console.error(error);
-        Swal.fire("Error", "No se pudo registrar el usuario.", "error");
-      }
-    }
-  };
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 bg-gradient">

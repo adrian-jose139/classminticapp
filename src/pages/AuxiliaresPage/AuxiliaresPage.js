@@ -136,6 +136,7 @@ const calcularEdad = (fecha) => {
                             <Nav.Link onClick={() => navigate('/auxiliares')}>Auxiliares</Nav.Link>
                             <Nav.Link onClick={() => navigate('/servicios')}>Servicios</Nav.Link>
                             <Nav.Link onClick={() => navigate('/cronograma')}>Cronograma</Nav.Link>
+                            <Nav.Link onClick={() => navigate('/dashboard')}>Inicio</Nav.Link>
 
                             <NavDropdown
                                 title={

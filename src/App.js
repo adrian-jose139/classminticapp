@@ -18,6 +18,7 @@ import UseStatePlay from './pages/Playground/UseStatePlay';
 import ProtectedRoute from './pages/components/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage/DashboardPage'; 
 import AuxiliaresPage from './pages/AuxiliaresPage/AuxiliaresPage';
+import ClientesPage from './pages/ClientesPage/ClientesPage';
 import ResetPasswordPage from './pages/ResetPasswordPage/ResetPasswordPage';
 import Protegida from './pages/Protegida/Protegida';
 import { AuthProvider } from "./context/AuthContext";
@@ -38,6 +39,7 @@ function App() {
         {/* Rutas protegidas con Firebase Auth */}
         <Route path="/dashboard" element={<ProtectedRoute> <DashboardPage /> </ProtectedRoute> } />
         <Route path="/auxiliares" element={<ProtectedRoute> <AuxiliaresPage /> </ProtectedRoute> } />
+        <Route path="/clientes" element={<ProtectedRoute> <ClientesPage /> </ProtectedRoute> } />
         <Route path="/protegida" element={<ProtectedRoute> <Protegida /> </ProtectedRoute> } />
         {/* Ruta genérica para páginas no encontradas */}
         <Route path="*" element={<NotFoundPage />} />
